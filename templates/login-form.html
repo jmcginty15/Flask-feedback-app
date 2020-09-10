@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div id="list-container" class="card form-container" style="width: 600px;">
+    <div class="card-title">
+        <h3 class="card-body">Login</h3>
+    </div>
+    <div class="card-body">
+        {% for msg in get_flashed_messages() %}
+        <div class="alert alert-danger" role="alert" id="home-flash">{{ msg }}</div>
+        {% endfor %}
+        <form action="/login" method="POST" id="login-form" class="card-body">
+            {{ form.hidden_tag() }}
+            {% for field in form if field.widget.input_type != 'hidden' %}
+            <div class="form-group">
+                {{ field.label }}
+                {{ field(class_="form-control") }}
+                {% for err in field.errors %}<small class="form-text text-muted">{{ err }}</small>{% endfor %}
+            </div>
+            {% endfor %}
+            <button type="submit" id="submit-form" class="btn btn-primary">Submit</button>
+            <a href="/" id="cancel" class="btn btn-danger">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
