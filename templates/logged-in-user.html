@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.username }}{% endblock %}
+
+{% block content %}
+<div id="user-container" class="card form-container" style="width: 600px;">
+    <div class="card-body">
+        <h3 class="card-title">{{ user.username }}</h3><br>
+        <small class="text-muted"><b>Name:</b> {{ user.get_full_name() }}</small><br>
+        <small class="text-muted"><b>Email:</b> {{ user.email }}</small>
+    </div>
+    <div class="card-body" id="post-list">
+        <h5 class="card-title" id="posts-title">Feedback</h5>
+        {% if user.feedback %}
+        <div class="card-body">
+            <ul class="list-group">
+                {% for feedback in user.feedback %}
+                <li class="list-group-item"><b>{{ feedback.title }}</b><br>
+                    {{ feedback.content }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="card-body">
+            <h6 class="card-title">{{ user.username }} has not submitted any feedback yet!</h6>
+        </div>
+        {% endif %}
+        <div class="card-body">
+            <form action="/users/{{ user.username }}/delete" method="POST">
+                <a href="/users/{{ user.username }}/feedback/add" class="btn btn-primary">Submit Feedback</a>
+                <a href="/logout" class="btn btn-warning">Logout</a>
+                <button type="submit" class="btn btn-danger">Delete User</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
