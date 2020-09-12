@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Submit Feedback{% endblock %}
+{% block title %}Edit Feedback{% endblock %}
 
 {% block content %}
 <div id="form-container" class="card form-container" style="width: 600px;">
     <div class="card-title">
-        <h3 class="card-body">Submit Feedback</h3>
+        <h3 class="card-body">Edit Feedback</h3>
     </div>
     <div class="card-body">
         {% for msg in get_flashed_messages() %}
         <div class="alert alert-success" role="alert" id="home-flash">{{ msg }}</div>
         {% endfor %}
-        <form action="/users/{{ user.username }}/feedback/add" method="POST" id="feedback-submission-form" class="card-body">
+        <form action="/feedback/{{ feedback.id }}/update" method="POST" id="feedback-edit-form" class="card-body">
             {{ form.hidden_tag() }}
             {% for field in form if field.widget.input_type != 'hidden' %}
             <div class="form-group">
@@ -20,7 +20,7 @@
                 {% for err in field.errors %}<small class="form-text text-muted">{{ err }}</small>{% endfor %}
             </div>
             {% endfor %}
-            <button type="submit" id="submit-form" class="btn btn-primary">Submit</button>
+            <button type="submit" id="edit-form" class="btn btn-primary">Save</button>
             <a href="/users/{{ user.username }}" id="cancel" class="btn btn-danger">Cancel</a>
         </form>
     </div>

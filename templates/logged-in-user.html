@@ -11,12 +11,25 @@
     </div>
     <div class="card-body" id="post-list">
         <h5 class="card-title" id="posts-title">Feedback</h5>
+        {% for msg in get_flashed_messages() %}
+        <div class="alert alert-success" role="alert" id="home-flash">{{ msg }}</div>
+        {% endfor %}
         {% if user.feedback %}
         <div class="card-body">
             <ul class="list-group">
                 {% for feedback in user.feedback %}
                 <li class="list-group-item"><b>{{ feedback.title }}</b><br>
-                    {{ feedback.content }}
+                    <div class="row no-gutters">
+                        <div class="col-md-8">
+                            {{ feedback.content }}
+                        </div>
+                        <div class="col-md-4">
+                            <form action="/feedback/{{ feedback.id }}/delete" method="POST" class="right-button">
+                                <a href="/feedback/{{ feedback.id }}/update" class="btn btn-primary">Edit</a>
+                                <button type="submit" class="btn btn-danger">Delete</a>
+                            </form>
+                        </div>
+                    </div>
                 </li>
                 {% endfor %}
             </ul>

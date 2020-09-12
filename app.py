@@ -16,7 +16,7 @@ db.create_all()
 
 @app.route('/')
 def homepage():
-    return redirect('/register')
+    return render_template('home.html')
 
 @app.route('/register')
 def register():
@@ -100,4 +100,71 @@ def show_feedback_form(username):
         return render_template('feedback-submission-form.html', form=form, user=user)
     else:
         flash(f'You must be logged in as {username} to do that!')
+        return redirect('/login')
+
+@app.route('/users/<username>/feedback/add', methods=['POST'])
+def process_feedback(username):
+    user = User.query.filter_by(username=username).first()
+    logged_in_username = session.get('user')
+    if logged_in_username == user.username:
+        form = FeedbackSubmissionForm()
+        if form.validate_on_submit():
+            title = form.title.data
+            content = form.content.data
+            feedback = Feedback(title=title, content=content, username=username)
+            db.session.add(feedback)
+            db.session.commit()
+            flash(f'{title} added!')
+            return redirect(f'/users/{username}')
+        else:
+            return render_template('feedback-submission-form.html', form=form)
+    else:
+        flash(f'You must be logged in as {username} to do that!')
+        return redirect('/login')        
+
+@app.route('/feedback/<int:feedback_id>/update')
+def update_feedback(feedback_id):
+    feedback = Feedback.query.get(feedback_id)
+    user = feedback.user
+    logged_in_username = session.get('user')
+    if logged_in_username == user.username:
+        form = FeedbackSubmissionForm()
+        form.title.data = feedback.title
+        form.content.data = feedback.content
+        return render_template('feedback-edit-form.html', form=form, user=user, feedback=feedback)
+    else:
+        flash(f'You must be logged in as {user.username} to access that page!')
+        return redirect('/login')
+
+@app.route('/feedback/<int:feedback_id>/update', methods=['POST'])
+def process_update(feedback_id):
+    feedback = Feedback.query.get(feedback_id)
+    user = feedback.user
+    logged_in_username = session.get('user')
+    if logged_in_username == user.username:
+        form = FeedbackSubmissionForm()
+        if form.validate_on_submit():
+            feedback.title = form.title.data
+            feedback.content = form.content.data
+            db.session.commit()
+            flash(f'{feedback.title} updated!')
+            return redirect(f'/users/{user.username}')
+        else:
+            return render_template('feedback-edit-form.html', form=form, user=user, feedback=feedback)
+    else:
+        flash(f'You must be logged in as {user.username} to do that!')
+        return redirect('/login')
+
+@app.route('/feedback/<int:feedback_id>/delete', methods=['POST'])
+def delete_feedback(feedback_id):
+    feedback = Feedback.query.get(feedback_id)
+    user = feedback.user
+    logged_in_username = session.get('user')
+    if logged_in_username == user.username:
+        db.session.delete(feedback)
+        db.session.commit()
+        flash(f'{feedback.title} deleted!')
+        return redirect(f'/users/{user.username}')
+    else:
+        flash(f'You must be logged in as {user.username} to do that!')
         return redirect('/login')
