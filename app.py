@@ -20,30 +20,45 @@ def homepage():
 
 @app.route('/register')
 def register():
-    form = RegistrationForm()
-    return render_template('registration-form.html', form=form)
+    username = session.get('user')
+    if username:
+        flash('Already logged in!')
+        return redirect(f'/users/{username}')
+    else:
+        form = RegistrationForm()
+        return render_template('registration-form.html', form=form)
 
 @app.route('/register', methods=['POST'])
 def register_process():
     form = RegistrationForm()
     if form.validate_on_submit():
         username = form.username.data
-        password = form.password.data
-        email = form.email.data
-        first_name = form.first_name.data
-        last_name = form.last_name.data
-        new_user = User.register(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
-        db.session.add(new_user)
-        db.session.commit()
-        session['user'] = new_user.username
-        return redirect(f'/users/{new_user.username}')
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already taken! Please choose a different one.')
+            return redirect('/register')
+        else:
+            password = form.password.data
+            email = form.email.data
+            first_name = form.first_name.data
+            last_name = form.last_name.data
+            new_user = User.register(username=username, password=password, email=email, first_name=first_name, last_name=last_name)
+            db.session.add(new_user)
+            db.session.commit()
+            session['user'] = new_user.username
+            return redirect(f'/users/{new_user.username}')
     else:
         return render_template('registration-form.html', form=form)
 
 @app.route('/login')
 def login():
-    form = LoginForm()
-    return render_template('login-form.html', form=form)
+    username = session.get('user')
+    if username:
+        flash('Already logged in!')
+        return redirect(f'/users/{username}')
+    else:
+        form = LoginForm()
+        return render_template('login-form.html', form=form)
 
 @app.route('/login', methods=['POST'])
 def login_process():
@@ -124,7 +139,7 @@ def process_feedback(username):
 
 @app.route('/feedback/<int:feedback_id>/update')
 def update_feedback(feedback_id):
-    feedback = Feedback.query.get(feedback_id)
+    feedback = Feedback.query.get_or_404(feedback_id)
     user = feedback.user
     logged_in_username = session.get('user')
     if logged_in_username == user.username:
@@ -138,7 +153,7 @@ def update_feedback(feedback_id):
 
 @app.route('/feedback/<int:feedback_id>/update', methods=['POST'])
 def process_update(feedback_id):
-    feedback = Feedback.query.get(feedback_id)
+    feedback = Feedback.query.get_or_404(feedback_id)
     user = feedback.user
     logged_in_username = session.get('user')
     if logged_in_username == user.username:
@@ -157,7 +172,7 @@ def process_update(feedback_id):
 
 @app.route('/feedback/<int:feedback_id>/delete', methods=['POST'])
 def delete_feedback(feedback_id):
-    feedback = Feedback.query.get(feedback_id)
+    feedback = Feedback.query.get_or_404(feedback_id)
     user = feedback.user
     logged_in_username = session.get('user')
     if logged_in_username == user.username:
