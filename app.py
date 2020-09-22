@@ -2,9 +2,10 @@ from flask import Flask, request, render_template, redirect, flash, jsonify, ses
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Feedback
 from forms import RegistrationForm, LoginForm, FeedbackSubmissionForm
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yeet'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'yeet')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///feedback_app'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
